@@ -1,24 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import logo from './assets/gardenbaylogo2.png'; // Import the logo image
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <div className="header-container">
+        <img src={logo} alt="Garden Bay Logo" className="header-logo" />
+      </div>
+      <div className="header-content">
+        <button className="menu-button" onClick={() => alert('Button clicked!')}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <h1 className="header-title">Inventory Manager</h1>
+      </div>
+      <div className="search-bar-container">
+        <input
+          type="text"
+          className="search-bar"
+          placeholder="Search inventory..."
+        />
+      </div>
     </div>
   );
 }

@@ -1,3 +1,6 @@
+/* Import Roboto font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
 .App {
   text-align: center;
 }
@@ -21,7 +24,7 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .App-link {
@@ -35,4 +38,81 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+body {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  margin: 0;
+  padding: 0;
+  font-family: 'Urbanist', Arial, sans-serif; /* Apply Urbanist font */
+}
+
+.header-container {
+  background-color: #2c454c; /* Set the background color */
+  height: 60px; /* Reduced the height to make the container thinner */
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center the content horizontally */
+  align-items: center; /* Center the content vertically */
+}
+
+.header-content {
+  display: flex; /* Use flexbox for layout */
+  align-items: center; /* Align items vertically */
+  gap: 40px; /* Add spacing between the button and text */
+  padding: 10px; /* Add padding for spacing */
+}
+
+.menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 24px;
+  width: 30px;
+  padding: 0;
+}
+
+.menu-button span {
+  display: block;
+  height: 4px;
+  width: 100%;
+  background-color: black;
+  border-radius: 2px;
+}
+
+.header-logo {
+  height: 40px; /* Adjust the logo height to fit the thinner container */
+  width: auto; /* Maintain the aspect ratio */
+}
+
+.header-title {
+  font-size: 1.5rem; /* Adjust the font size */
+  margin: 0; /* Remove default margin */
+  color: black; /* Set text color */
+  font-family: 'Urbanist', Arial, sans-serif; /* Apply Urbanist font */
+}
+
+.search-bar-container {
+  display: block; /* Change to block to ensure it spans the full width */
+  margin-top: 20px; /* Add spacing between the search bar and the button/text */
+  padding-left: 10px; /* Add padding to align the search bar to the left */
+}
+
+.search-bar {
+  width: 80%; /* Set the width of the search bar */
+  max-width: 400px; /* Limit the maximum width */
+  padding: 10px; /* Add padding inside the search bar */
+  border: 1px solid #ccc; /* Add a border */
+  border-radius: 5px; /* Round the corners */
+  font-size: 1rem; /* Adjust the font size */
+  font-family: 'Urbanist', Arial, sans-serif; /* Apply Urbanist font */
+  outline: none; /* Remove the default outline */
+}
+
+.search-bar:focus {
+  border-color: #2c454c; /* Change border color on focus */
+  box-shadow: 0 0 5px rgba(44, 69, 76, 0.5); /* Add a subtle shadow */
 }
