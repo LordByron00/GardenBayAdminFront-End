@@ -1,15 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import logo from './assets/gardenbaylogo2.png'; // Import the logo image
 
 function App() {
+  const [selectedButton, setSelectedButton] = useState<string | null>(null);
+  const [showMenuButtons, setShowMenuButtons] = useState(false);
+
+  const handleButtonClick = (buttonName: string) => {
+    setSelectedButton(buttonName);
+  };
+
+  const toggleMenuButtons = () => {
+    setShowMenuButtons((prev) => !prev); // Toggle the visibility of the menu buttons
+  };
+
   return (
     <div>
       <div className="header-container">
-        <img src={logo} alt="Garden Bay Logo" className="header-logo" />
+        <img src={logo} alt="Logo" className="header-logo" />
       </div>
       <div className="header-content">
-        <button className="menu-button" onClick={() => alert('Button clicked!')}>
+        <button className="menu-button" onClick={toggleMenuButtons}>
           <span></span>
           <span></span>
           <span></span>
@@ -23,6 +34,42 @@ function App() {
           placeholder="Search inventory..."
         />
       </div>
+      {showMenuButtons && (
+        <div className="menu-buttons-container">
+          <button
+            className={`menu-action-button ${
+              selectedButton === 'checkStocks' ? 'selected' : ''
+            }`}
+            onClick={() => handleButtonClick('checkStocks')}
+          >
+            Check Stocks
+          </button>
+          <button
+            className={`menu-action-button ${
+              selectedButton === 'suppliers' ? 'selected' : ''
+            }`}
+            onClick={() => handleButtonClick('suppliers')}
+          >
+            Suppliers
+          </button>
+          <button
+            className={`menu-action-button ${
+              selectedButton === 'purchase' ? 'selected' : ''
+            }`}
+            onClick={() => handleButtonClick('purchase')}
+          >
+            Purchase
+          </button>
+          <button
+            className={`menu-action-button ${
+              selectedButton === 'sales' ? 'selected' : ''
+            }`}
+            onClick={() => handleButtonClick('sales')}
+          >
+            Sales
+          </button>
+        </div>
+      )}
     </div>
   );
 }
