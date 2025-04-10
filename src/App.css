@@ -131,7 +131,7 @@ body {
   cursor: pointer;
   text-align: left; /* Align the text to the left */
   padding-left: 20px; /* Add extra padding to the left for spacing */
-  transition: background-color 0.3s, color 0.3s; /* Smooth transition for focus effects */
+  /* Removed transition property */
 }
 
 .menu-action-button.selected {
@@ -145,6 +145,5 @@ body {
   color: #ffffff; /* Change text color when pressed or selected */
   outline: none; /* Remove the default focus outline */
 }
-
 
 }
