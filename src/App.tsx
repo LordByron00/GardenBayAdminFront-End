@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import logo from './assets/gardenbaylogo2.png';
 
@@ -30,9 +30,33 @@ function App() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentEditProduct, setCurrentEditProduct] = useState<Product | null>(null);
   const [showArchived, setShowArchived] = useState<boolean>(false);
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+
+  // Add resize event listener for responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      // Close sidebar automatically on small screens
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    // Initial check
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleButtonClick = (buttonName: string) => {
     setSelectedButton(buttonName);
+    // Close sidebar after selection on small screens
+    if (windowWidth < 768) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const toggleSidebar = () => {
@@ -165,6 +189,14 @@ function App() {
     (showArchived ? true : !product.archived)
   );
 
+  // Function to check if a product is expired
+  const isExpired = (expiryDate: string): boolean => {
+    if (!expiryDate) return false;
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    return expiry < today;
+  };
+
   return (
     <div className="app-container">
       {/* Header Section */}
@@ -271,7 +303,9 @@ function App() {
                           <td className="product-name-cell">{product.name}</td>
                           <td className="product-quantity-cell">{product.quantity}</td>
                           <td className="product-date-cell">{product.date}</td>
-                          <td className="product-expiry-cell">{product.expiryDate || 'N/A'}</td>
+                          <td className={`product-expiry-cell ${isExpired(product.expiryDate) ? 'expired-product' : ''}`}>
+                            {product.expiryDate || 'N/A'}
+                          </td>
                           <td className="product-warehouse-cell">{product.warehouse || 'N/A'}</td>
                           <td className="product-supplier-cell">{product.supplier || 'N/A'}</td>
                           <td className="product-actions-cell">
