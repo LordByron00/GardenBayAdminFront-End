@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import logo from './assets/gardenbaylogo2.png';
+import SalesTab from './components/SalesTab';
 
 // Define product type
 interface Product {
@@ -355,8 +356,7 @@ function App() {
           )}
           {selectedButton === 'sales' && (
             <div>
-              <h2>Sales</h2>
-              <p>View and manage your sales records here.</p>
+               <SalesTab />
             </div>
           )}
         </div>
