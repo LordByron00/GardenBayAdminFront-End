@@ -193,7 +193,7 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Header Section */}
+      {/* Fixed Header */}
       <div className="header-container">
         <button className="menu-button" onClick={toggleSidebar}>
           <span></span>
@@ -203,9 +203,9 @@ function App() {
         <img src={logo} alt="Logo" className="header-logo" />
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area with Sidebar */}
       <div className="main-content">
-        {/* Sidebar Buttons */}
+        {/* Fixed Sidebar */}
         <div className={`sidebar ${isSidebarOpen ? '' : 'closed'}`}>
           <button
             className={`menu-action-button ${selectedButton === 'checkStocks' ? 'selected' : ''}`}
@@ -268,6 +268,7 @@ function App() {
                         <th>Quantity</th>
                         <th>Date Added</th>
                         <th>Expiry Date</th>
+                        <th>Supplier</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -281,9 +282,12 @@ function App() {
                                 alt={product.name}
                                 className="product-table-image"
                                 onError={(e) => {
-                                  // Handle image loading error
+                                  // Handle image loading error by replacing with N/A text
                                   const target = e.target as HTMLImageElement;
-                                  target.src = "/api/placeholder/100/100"; // Fallback to placeholder
+                                  const parent = target.parentNode as HTMLElement;
+                                  if (parent) {
+                                    parent.innerHTML = '<div class="product-image-placeholder">N/A</div>';
+                                  }
                                 }}
                               />
                             ) : (
@@ -378,6 +382,16 @@ function App() {
                   id="productExpiryDate"
                   value={newProductExpiryDate}
                   onChange={(e) => setNewProductExpiryDate(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="productSupplier">Supplier:</label>
+                <input
+                  type="text"
+                  id="productSupplier"
+                  value={newProductSupplier}
+                  onChange={(e) => setNewProductSupplier(e.target.value)}
+                  placeholder="Enter supplier name"
                 />
               </div>
               <div className="form-group">
