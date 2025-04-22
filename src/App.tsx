@@ -268,7 +268,6 @@ function App() {
                         <th>Quantity</th>
                         <th>Date Added</th>
                         <th>Expiry Date</th>
-                        <th>Supplier</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -384,16 +383,8 @@ function App() {
                   onChange={(e) => setNewProductExpiryDate(e.target.value)}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="productSupplier">Supplier:</label>
-                <input
-                  type="text"
-                  id="productSupplier"
-                  value={newProductSupplier}
-                  onChange={(e) => setNewProductSupplier(e.target.value)}
-                  placeholder="Enter supplier name"
-                />
-              </div>
+              
+             
               <div className="form-group">
                 <label htmlFor="productImage">Product Image:</label>
                 <div className="image-upload-container">
