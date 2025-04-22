@@ -11,7 +11,6 @@ interface Product {
   quantity: number;
   date: string;
   expiryDate: string;
-  warehouse: string;
   supplier: string;
   archived: boolean;
 }
@@ -26,7 +25,6 @@ function App() {
   const [newProductImage, setNewProductImage] = useState<string>('');
   const [newProductQuantity, setNewProductQuantity] = useState<string>('0');
   const [newProductExpiryDate, setNewProductExpiryDate] = useState<string>('');
-  const [newProductWarehouse, setNewProductWarehouse] = useState<string>('');
   const [newProductSupplier, setNewProductSupplier] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentEditProduct, setCurrentEditProduct] = useState<Product | null>(null);
@@ -74,7 +72,6 @@ function App() {
     setNewProductImage('');
     setNewProductQuantity('0');
     setNewProductExpiryDate('');
-    setNewProductWarehouse('');
     setNewProductSupplier('');
   };
 
@@ -84,7 +81,6 @@ function App() {
     setNewProductImage(product.imageUrl);
     setNewProductQuantity(product.quantity.toString());
     setNewProductExpiryDate(product.expiryDate);
-    setNewProductWarehouse(product.warehouse);
     setNewProductSupplier(product.supplier);
     setIsEditProductModalOpen(true);
   };
@@ -96,7 +92,6 @@ function App() {
     setNewProductImage('');
     setNewProductQuantity('0');
     setNewProductExpiryDate('');
-    setNewProductWarehouse('');
     setNewProductSupplier('');
   };
 
@@ -116,7 +111,6 @@ function App() {
       quantity: quantity,
       date: currentDate,
       expiryDate: newProductExpiryDate,
-      warehouse: newProductWarehouse,
       supplier: newProductSupplier,
       archived: false
     };
@@ -143,7 +137,6 @@ function App() {
           imageUrl: newProductImage || product.imageUrl,
           quantity: quantity,
           expiryDate: newProductExpiryDate,
-          warehouse: newProductWarehouse,
           supplier: newProductSupplier
         };
       }
@@ -221,12 +214,6 @@ function App() {
             Check Stocks
           </button>
           <button
-            className={`menu-action-button ${selectedButton === 'suppliers' ? 'selected' : ''}`}
-            onClick={() => handleButtonClick('suppliers')}
-          >
-            Suppliers
-          </button>
-          <button
             className={`menu-action-button ${selectedButton === 'purchase' ? 'selected' : ''}`}
             onClick={() => handleButtonClick('purchase')}
           >
@@ -281,8 +268,6 @@ function App() {
                         <th>Quantity</th>
                         <th>Date Added</th>
                         <th>Expiry Date</th>
-                        <th>Warehouse</th>
-                        <th>Supplier</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -290,16 +275,20 @@ function App() {
                       {filteredProducts.map(product => (
                         <tr key={product.id} className={`product-row ${product.archived ? 'archived' : ''}`}>
                           <td className="product-image-cell">
-                            <img
-                              src={product.imageUrl}
-                              alt={product.name}
-                              className="product-table-image"
-                              onError={(e) => {
-                                // Handle image loading error
-                                const target = e.target as HTMLImageElement;
-                                target.src = "/api/placeholder/100/100"; // Fallback to placeholder
-                              }}
-                            />
+                            {product.imageUrl ? (
+                              <img
+                                src={product.imageUrl}
+                                alt={product.name}
+                                className="product-table-image"
+                                onError={(e) => {
+                                  // Handle image loading error
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = "/api/placeholder/100/100"; // Fallback to placeholder
+                                }}
+                              />
+                            ) : (
+                              <div className="product-image-placeholder">N/A</div>
+                            )}
                           </td>
                           <td className="product-name-cell">{product.name}</td>
                           <td className="product-quantity-cell">{product.quantity}</td>
@@ -307,7 +296,6 @@ function App() {
                           <td className={`product-expiry-cell ${isExpired(product.expiryDate) ? 'expired-product' : ''}`}>
                             {product.expiryDate || 'N/A'}
                           </td>
-                          <td className="product-warehouse-cell">{product.warehouse || 'N/A'}</td>
                           <td className="product-supplier-cell">{product.supplier || 'N/A'}</td>
                           <td className="product-actions-cell">
                             <button
@@ -342,12 +330,6 @@ function App() {
               )}
             </div>
           )}
-          {selectedButton === 'suppliers' && (
-            <div>
-              <h2>Suppliers</h2>
-              <p>Manage your suppliers and their details here.</p>
-            </div>
-          )}
           {selectedButton === 'purchase' && (
             <div>
               <h2>Purchase</h2>
@@ -356,7 +338,7 @@ function App() {
           )}
           {selectedButton === 'sales' && (
             <div>
-               <SalesTab />
+              <SalesTab />
             </div>
           )}
         </div>
@@ -396,26 +378,6 @@ function App() {
                   id="productExpiryDate"
                   value={newProductExpiryDate}
                   onChange={(e) => setNewProductExpiryDate(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="productWarehouse">Warehouse:</label>
-                <input
-                  type="text"
-                  id="productWarehouse"
-                  value={newProductWarehouse}
-                  onChange={(e) => setNewProductWarehouse(e.target.value)}
-                  placeholder="Enter warehouse location"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="productSupplier">Supplier:</label>
-                <input
-                  type="text"
-                  id="productSupplier"
-                  value={newProductSupplier}
-                  onChange={(e) => setNewProductSupplier(e.target.value)}
-                  placeholder="Enter supplier name"
                 />
               </div>
               <div className="form-group">
@@ -481,16 +443,6 @@ function App() {
                   id="editProductExpiryDate"
                   value={newProductExpiryDate}
                   onChange={(e) => setNewProductExpiryDate(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="editProductWarehouse">Warehouse:</label>
-                <input
-                  type="text"
-                  id="editProductWarehouse"
-                  value={newProductWarehouse}
-                  onChange={(e) => setNewProductWarehouse(e.target.value)}
-                  placeholder="Enter warehouse location"
                 />
               </div>
               <div className="form-group">
