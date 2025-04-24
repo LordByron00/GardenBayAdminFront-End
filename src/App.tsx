@@ -233,7 +233,7 @@ function App() {
             Sales
           </button>
           <button className="logout-button" onClick={handleLogout}>
-            Logout
+            Sign Out
           </button>
         </div>
 
