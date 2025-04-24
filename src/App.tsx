@@ -225,6 +225,7 @@ function App() {
           >
             Sales
           </button>
+          <button className="logout-button">Logout</button>
         </div>
 
         {/* Tab Content */}

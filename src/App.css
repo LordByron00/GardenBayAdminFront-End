@@ -248,6 +248,27 @@ body {
   overflow: hidden;
 }
 
+.logout-button {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: calc(100% - 40px);
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-family: 'Urbanist', Arial, sans-serif;
+  background-color: #d9534f;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #c9302c;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -547,13 +568,14 @@ input[type="date"] {
 }
 
 .sales-dashboard {
-  padding: 0 20px;
+  padding: 20px;
+  display: grid;
+  gap: 20px;
 }
 
 .time-frame-selector {
   display: flex;
-  justify-content: flex-start;
-  margin-bottom: 20px;
+  justify-content: flex-end;
 }
 
 .time-frame-dropdown {
@@ -565,8 +587,6 @@ input[type="date"] {
   outline: none;
   background-color: white;
   cursor: pointer;
-  position: relative;
-  min-width: 180px;
 }
 
 .sales-actions {
@@ -608,29 +628,36 @@ input[type="date"] {
   font-style: italic;
 }
 
-.metric-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+.metrics-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
-.metric-title {
-  font-size: 0.9rem;
+.metric-card {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card h4 {
+  font-size: 1rem;
   color: #666;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
 .metric-value {
-  font-size: 1.8rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: bold;
   color: #333;
 }
 
 .metric-change {
   font-size: 0.9rem;
-  margin-left: 10px;
+  color: #10b981;
 }
 
 .metric-change.positive {
@@ -643,44 +670,47 @@ input[type="date"] {
 
 .chart-container {
   background-color: white;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.chart-title {
+.chart-container h4 {
   font-size: 1rem;
   color: #666;
   margin-bottom: 15px;
 }
 
+.chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  gap: 20px; /* Space between the charts */
+}
+
 .warehouse-capacity {
   display: flex;
-  align-items: stretch;
-  height: 200px;
-  margin-top: 20px;
+  align-items: flex-end;
+  height: 150px; /* Reduced height */
+  gap: 10px; /* Space between bars */
 }
 
 .warehouse-bar {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0 10px;
+  flex: none;
+  width: 40px; /* Slightly thinner bars */
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  border-radius: 4px;
 }
 
 .capacity-percentage {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 1.8rem;
+  bottom: 10px;
+  font-size: 1rem;
   font-weight: bold;
+  color: white;
 }
 
 .warehouse-legend {
@@ -705,13 +735,10 @@ input[type="date"] {
 }
 
 .low-stock-indicator {
-  position: absolute;
-  bottom: 15%;
-  left: 0;
-  right: 0;
   display: flex;
   align-items: center;
-  padding: 0 20px;
+  justify-content: center;
+  margin-top: 10px;
 }
 
 .indicator-line {
@@ -723,5 +750,13 @@ input[type="date"] {
 .indicator-label {
   font-size: 0.8rem;
   color: #666;
-  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.box {
+  background-color: white;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb; /* Light gray border */
+  border-radius: 0.5rem; /* Rounded corners */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
 }
