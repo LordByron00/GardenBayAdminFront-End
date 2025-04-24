@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import './App.css';
 import logo from './assets/gardenbaylogo2.png';
 import SalesTab from './components/SalesTab';
@@ -30,6 +31,7 @@ function App() {
   const [currentEditProduct, setCurrentEditProduct] = useState<Product | null>(null);
   const [showArchived, setShowArchived] = useState<boolean>(false);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const navigate = useNavigate(); // React Router hook for navigation
 
   // Add resize event listener for responsive design
   useEffect(() => {
@@ -60,6 +62,11 @@ function App() {
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    // Perform any cleanup actions if needed (e.g., clearing user state)
+    navigate('/'); // Redirect to the login page
   };
 
   const openAddProductModal = () => {
@@ -225,7 +232,9 @@ function App() {
           >
             Sales
           </button>
-          <button className="logout-button">Logout</button>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
 
         {/* Tab Content */}
