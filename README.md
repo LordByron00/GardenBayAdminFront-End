@@ -1,8 +1,3 @@
-npm install react react-dom
-npm install react-router-dom
-npm install typescript
-npm install --save-dev @types/react @types/react-dom @types/react-router-dom
-
 
 # Getting Started with Create React App
 
