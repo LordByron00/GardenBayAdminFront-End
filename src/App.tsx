@@ -31,6 +31,8 @@ function App() {
   const [newProductQuantity, setNewProductQuantity] = useState<string>('0');
   const [newProductExpiryDate, setNewProductExpiryDate] = useState<string>('');
   const [newProductSupplier, setNewProductSupplier] = useState<string>('');
+  const [newProductManagementName, setNewProductManagementName] = useState<string>('');
+  const [newProductManagementImage, setNewProductManagementImage] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentEditProduct, setCurrentEditProduct] = useState<Product | null>(null);
   const [showArchived, setShowArchived] = useState<boolean>(false);
@@ -84,6 +86,8 @@ function App() {
     setNewProductQuantity('0');
     setNewProductExpiryDate('');
     setNewProductSupplier('');
+    setNewProductManagementName('');
+    setNewProductManagementImage('');
   };
 
   const openEditProductModal = (product: Product) => {
@@ -107,29 +111,48 @@ function App() {
   };
 
   const handleAddProduct = () => {
-    if (newProductName.trim() === '') {
-      alert('Please enter a product name');
-      return;
-    }
-
-    const quantity = parseInt(newProductQuantity) || 0;
-    const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-
-    const newProduct: Product = {
-      id: Date.now(),
-      name: newProductName,
-      imageUrl: newProductImage || '/api/placeholder/100/100', // Use placeholder if no image provided
-      quantity: quantity,
-      date: currentDate,
-      expiryDate: newProductExpiryDate,
-      supplier: newProductSupplier,
-      archived: false
-    };
-
-    // Add product to the appropriate tab
     if (selectedButton === 'checkStocks') {
+      // Inventory Tab Logic
+      if (newProductName.trim() === '') {
+        alert('Please enter a product name');
+        return;
+      }
+
+      const quantity = parseInt(newProductQuantity) || 0;
+      const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+      const newProduct: Product = {
+        id: Date.now(),
+        name: newProductName,
+        imageUrl: newProductImage || '/api/placeholder/100/100', // Use placeholder if no image provided
+        quantity: quantity,
+        date: currentDate,
+        expiryDate: newProductExpiryDate,
+        supplier: newProductSupplier,
+        archived: false
+      };
+
       setInventoryProducts([...inventoryProducts, newProduct]);
     } else if (selectedButton === 'productmanage') {
+      // Product Management Tab Logic
+      if (newProductManagementName.trim() === '') {
+        alert('Please enter a product name');
+        return;
+      }
+
+      const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+      const newProduct: Product = {
+        id: Date.now(),
+        name: newProductManagementName,
+        imageUrl: newProductManagementImage || '/api/placeholder/100/100', // Use placeholder if no image provided
+        quantity: 0, // Default quantity for Product Management
+        date: currentDate,
+        expiryDate: '', // No expiry date for Product Management
+        supplier: '', // No supplier for Product Management
+        archived: false
+      };
+
       setProductManagementProducts([...productManagementProducts, newProduct]);
     }
 
@@ -494,7 +517,7 @@ function App() {
       </div>
 
       {/* Add Product Modal */}
-      {isAddProductModalOpen && selectedButton === 'productmanage' && (
+      {isAddProductModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2 className="modal-title">Add New Product</h2>
@@ -504,37 +527,67 @@ function App() {
                 <input
                   type="text"
                   id="productName"
-                  value={newProductName}
-                  onChange={(e) => setNewProductName(e.target.value)}
+                  value={selectedButton === 'checkStocks' ? newProductName : newProductManagementName}
+                  onChange={(e) =>
+                    selectedButton === 'checkStocks'
+                      ? setNewProductName(e.target.value)
+                      : setNewProductManagementName(e.target.value)
+                  }
                   placeholder="Enter product name"
                 />
               </div>
-             
-              </div>
               <div className="form-group">
-                <label htmlFor="productDate">Date Added:</label>
-                <input
-                  type="date"
-                  id="productDate"
-                  value={new Date().toISOString().split('T')[0]} // Default to today's date
-                  readOnly
-                />
+                <label htmlFor="productImage">Product Image:</label>
+                <div className="image-upload-container">
+                  {(selectedButton === 'checkStocks' ? newProductImage : newProductManagementImage) ? (
+                    <img
+                      src={selectedButton === 'checkStocks' ? newProductImage : newProductManagementImage}
+                      alt="Product preview"
+                      className="image-preview"
+                    />
+                  ) : (
+                    <div className="image-placeholder">No image selected</div>
+                  )}
+                  <input
+                    type="file"
+                    id="productImage"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const imageUrl = URL.createObjectURL(file);
+                        selectedButton === 'checkStocks'
+                          ? setNewProductImage(imageUrl)
+                          : setNewProductManagementImage(imageUrl);
+                      }
+                    }}
+                  />
+                </div>
               </div>
-            <div className="form-group">
-              <label htmlFor="productImage">Product Image:</label>
-              <div className="image-upload-container">
-                {newProductImage ? (
-                  <img src={newProductImage} alt="Product preview" className="image-preview" />
-                ) : (
-                  <div className="image-placeholder">No image selected</div>
-                )}
-                <input
-                  type="file"
-                  id="productImage"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </div>
+              {selectedButton === 'checkStocks' && (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="productQuantity">Quantity:</label>
+                    <input
+                      type="number"
+                      id="productQuantity"
+                      value={newProductQuantity}
+                      min="0"
+                      onChange={(e) => setNewProductQuantity(e.target.value)}
+                      placeholder="Enter quantity"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="productExpiryDate">Expiring Date:</label>
+                    <input
+                      type="date"
+                      id="productExpiryDate"
+                      value={newProductExpiryDate}
+                      onChange={(e) => setNewProductExpiryDate(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
               <div className="modal-buttons">
                 <button className="modal-button cancel" onClick={closeAddProductModal}>
                   Cancel
