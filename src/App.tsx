@@ -21,7 +21,11 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState<boolean>(false);
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState<boolean>(false);
-  const [products, setProducts] = useState<Product[]>([]);
+
+  // Separate states for Inventory and Product Management
+  const [inventoryProducts, setInventoryProducts] = useState<Product[]>([]);
+  const [productManagementProducts, setProductManagementProducts] = useState<Product[]>([]);
+
   const [newProductName, setNewProductName] = useState<string>('');
   const [newProductImage, setNewProductImage] = useState<string>('');
   const [newProductQuantity, setNewProductQuantity] = useState<string>('0');
@@ -122,7 +126,13 @@ function App() {
       archived: false
     };
 
-    setProducts([...products, newProduct]);
+    // Add product to the appropriate tab
+    if (selectedButton === 'checkStocks') {
+      setInventoryProducts([...inventoryProducts, newProduct]);
+    } else if (selectedButton === 'productmanage') {
+      setProductManagementProducts([...productManagementProducts, newProduct]);
+    }
+
     closeAddProductModal();
   };
 
@@ -136,7 +146,7 @@ function App() {
 
     const quantity = parseInt(newProductQuantity) || 0;
 
-    const updatedProducts = products.map(product => {
+    const updatedProducts = (selectedButton === 'checkStocks' ? inventoryProducts : productManagementProducts).map(product => {
       if (product.id === currentEditProduct.id) {
         return {
           ...product,
@@ -150,30 +160,43 @@ function App() {
       return product;
     });
 
-    setProducts(updatedProducts);
+    if (selectedButton === 'checkStocks') {
+      setInventoryProducts(updatedProducts);
+    } else if (selectedButton === 'productmanage') {
+      setProductManagementProducts(updatedProducts);
+    }
+
     closeEditProductModal();
   };
 
   const handleArchiveProduct = (productId: number) => {
-    const updatedProducts = products.map(product => {
+    const updatedProducts = (selectedButton === 'checkStocks' ? inventoryProducts : productManagementProducts).map(product => {
       if (product.id === productId) {
         return { ...product, archived: true };
       }
       return product;
     });
 
-    setProducts(updatedProducts);
+    if (selectedButton === 'checkStocks') {
+      setInventoryProducts(updatedProducts);
+    } else if (selectedButton === 'productmanage') {
+      setProductManagementProducts(updatedProducts);
+    }
   };
 
   const handleUnarchiveProduct = (productId: number) => {
-    const updatedProducts = products.map(product => {
+    const updatedProducts = (selectedButton === 'checkStocks' ? inventoryProducts : productManagementProducts).map(product => {
       if (product.id === productId) {
         return { ...product, archived: false };
       }
       return product;
     });
 
-    setProducts(updatedProducts);
+    if (selectedButton === 'checkStocks') {
+      setInventoryProducts(updatedProducts);
+    } else if (selectedButton === 'productmanage') {
+      setProductManagementProducts(updatedProducts);
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,7 +208,12 @@ function App() {
     }
   };
 
-  const filteredProducts = products.filter(product =>
+  const filteredInventoryProducts = inventoryProducts.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    (showArchived ? true : !product.archived)
+  );
+
+  const filteredProductManagementProducts = productManagementProducts.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
     (showArchived ? true : !product.archived)
   );
@@ -218,7 +246,13 @@ function App() {
             className={`menu-action-button ${selectedButton === 'checkStocks' ? 'selected' : ''}`}
             onClick={() => handleButtonClick('checkStocks')}
           >
-            Check Stocks
+            Inventory
+          </button>
+          <button
+            className={`menu-action-button ${selectedButton === 'productmanage' ? 'selected' : ''}`}
+            onClick={() => handleButtonClick('productmanage')}
+          >
+            Product Management
           </button>
           <button
             className={`menu-action-button ${selectedButton === 'purchase' ? 'selected' : ''}`}
@@ -262,13 +296,13 @@ function App() {
                   </label>
                 </div>
                 <button className="add-product-button" onClick={openAddProductModal}>
-                  Add Product
+                  Add Item
                 </button>
               </div>
               <h2>Check Stocks</h2>
 
               {/* Products Table */}
-              {filteredProducts.length > 0 ? (
+              {filteredInventoryProducts.length > 0 ? (
                 <div className="products-table-container">
                   <table className="products-table">
                     <thead>
@@ -282,7 +316,7 @@ function App() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredProducts.map(product => (
+                      {filteredInventoryProducts.map(product => (
                         <tr key={product.id} className={`product-row ${product.archived ? 'archived' : ''}`}>
                           <td className="product-image-cell">
                             {product.imageUrl ? (
@@ -291,7 +325,109 @@ function App() {
                                 alt={product.name}
                                 className="product-table-image"
                                 onError={(e) => {
-                                  // Handle image loading error by replacing with N/A text
+                                  const target = e.target as HTMLImageElement;
+                                  const parent = target.parentNode as HTMLElement;
+                                  if (parent) {
+                                    parent.innerHTML = '<div class="product-image-placeholder">N/A</div>';
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <div className="product-image-placeholder">N/A</div>
+                            )}
+                          </td>
+                          <td className="product-name-cell">{product.name}</td>
+                          <td className="product-quantity-cell">{product.quantity}</td>
+                          <td className="product-date-cell">{product.date}</td>
+                          <td className={`product-expiry-cell ${isExpired(product.expiryDate) ? 'expired-product' : ''}`}>
+                            {product.expiryDate || 'N/A'}
+                          </td>
+                          <td className="product-supplier-cell">{product.supplier || 'N/A'}</td>
+                          <td className="product-actions-cell">
+                            <button
+                              className="edit-button"
+                              onClick={() => openEditProductModal(product)}
+                            >
+                              Update
+                            </button>
+                            {!product.archived ? (
+                              <button
+                                className="archive-button"
+                                onClick={() => handleArchiveProduct(product.id)}
+                              >
+                                Archive
+                              </button>
+                            ) : (
+                              <button
+                                className="unarchive-button"
+                                onClick={() => handleUnarchiveProduct(product.id)}
+                              >
+                                Unarchive
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="no-products-message">No products available. Add products using the "Add Product" button.</p>
+              )}
+            </div>
+          )}
+          {selectedButton === 'productmanage' && (
+            <div className="stocks-content">
+              {/* Search and Add Product Container */}
+              <div className="top-controls-container">
+                <div className="inventory-search-container">
+                  <span className="inventory-label">Product Management</span>
+                  <input
+                    type="text"
+                    className="search-bar"
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <label className="archive-toggle">
+                    <input
+                      type="checkbox"
+                      checked={showArchived}
+                      onChange={() => setShowArchived(!showArchived)}
+                    />
+                    Show Archived
+                  </label>
+                </div>
+                <button className="add-product-button" onClick={openAddProductModal}>
+                  Add Product
+                </button>
+              </div>
+              <h2>Product Management</h2>
+
+              {/* Products Table */}
+              {filteredProductManagementProducts.length > 0 ? (
+                <div className="products-table-container">
+                  <table className="products-table">
+                    <thead>
+                      <tr>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Date Added</th>
+                        <th>Expiry Date</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProductManagementProducts.map(product => (
+                        <tr key={product.id} className={`product-row ${product.archived ? 'archived' : ''}`}>
+                          <td className="product-image-cell">
+                            {product.imageUrl ? (
+                              <img
+                                src={product.imageUrl}
+                                alt={product.name}
+                                className="product-table-image"
+                                onError={(e) => {
                                   const target = e.target as HTMLImageElement;
                                   const parent = target.parentNode as HTMLElement;
                                   if (parent) {
@@ -358,7 +494,7 @@ function App() {
       </div>
 
       {/* Add Product Modal */}
-      {isAddProductModalOpen && (
+      {isAddProductModalOpen && selectedButton === 'productmanage' && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2 className="modal-title">Add New Product</h2>
@@ -373,43 +509,31 @@ function App() {
                   placeholder="Enter product name"
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="productQuantity">Quantity:</label>
-                <input
-                  type="number"
-                  id="productQuantity"
-                  value={newProductQuantity}
-                  min="0"
-                  onChange={(e) => setNewProductQuantity(e.target.value)}
-                  placeholder="Enter quantity"
-                />
+             
               </div>
               <div className="form-group">
-                <label htmlFor="productExpiryDate">Expiry Date:</label>
+                <label htmlFor="productDate">Date Added:</label>
                 <input
                   type="date"
-                  id="productExpiryDate"
-                  value={newProductExpiryDate}
-                  onChange={(e) => setNewProductExpiryDate(e.target.value)}
+                  id="productDate"
+                  value={new Date().toISOString().split('T')[0]} // Default to today's date
+                  readOnly
                 />
               </div>
-              
-             
-              <div className="form-group">
-                <label htmlFor="productImage">Product Image:</label>
-                <div className="image-upload-container">
-                  {newProductImage ? (
-                    <img src={newProductImage} alt="Product preview" className="image-preview" />
-                  ) : (
-                    <div className="image-placeholder">No image selected</div>
-                  )}
-                  <input
-                    type="file"
-                    id="productImage"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
-                </div>
+            <div className="form-group">
+              <label htmlFor="productImage">Product Image:</label>
+              <div className="image-upload-container">
+                {newProductImage ? (
+                  <img src={newProductImage} alt="Product preview" className="image-preview" />
+                ) : (
+                  <div className="image-placeholder">No image selected</div>
+                )}
+                <input
+                  type="file"
+                  id="productImage"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
               </div>
               <div className="modal-buttons">
                 <button className="modal-button cancel" onClick={closeAddProductModal}>
@@ -425,7 +549,7 @@ function App() {
       )}
 
       {/* Edit Product Modal */}
-      {isEditProductModalOpen && currentEditProduct && (
+      {isEditProductModalOpen && selectedButton === 'productmanage' && currentEditProduct && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2 className="modal-title">Edit Product</h2>
@@ -438,36 +562,6 @@ function App() {
                   value={newProductName}
                   onChange={(e) => setNewProductName(e.target.value)}
                   placeholder="Enter product name"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="editProductQuantity">Quantity:</label>
-                <input
-                  type="number"
-                  id="editProductQuantity"
-                  value={newProductQuantity}
-                  min="0"
-                  onChange={(e) => setNewProductQuantity(e.target.value)}
-                  placeholder="Enter quantity"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="editProductExpiryDate">Expiry Date:</label>
-                <input
-                  type="date"
-                  id="editProductExpiryDate"
-                  value={newProductExpiryDate}
-                  onChange={(e) => setNewProductExpiryDate(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="editProductSupplier">Supplier:</label>
-                <input
-                  type="text"
-                  id="editProductSupplier"
-                  value={newProductSupplier}
-                  onChange={(e) => setNewProductSupplier(e.target.value)}
-                  placeholder="Enter supplier name"
                 />
               </div>
               <div className="form-group">
@@ -485,6 +579,15 @@ function App() {
                     onChange={handleImageChange}
                   />
                 </div>
+              </div>
+              <div className="form-group">
+                <label htmlFor="editProductDate">Date Added:</label>
+                <input
+                  type="date"
+                  id="editProductDate"
+                  value={currentEditProduct.date}
+                  readOnly
+                />
               </div>
               <div className="modal-buttons">
                 <button className="modal-button cancel" onClick={closeEditProductModal}>
