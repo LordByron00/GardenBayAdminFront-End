@@ -12,7 +12,7 @@ const Login: React.FC = () => {
         e.preventDefault();
         // Check if the entered username and password match the placeholders
         if (username === 'tralalelo' && password === '12345') {
-            navigate('/app'); // Redirect to App.tsx
+            navigate('/inventory'); // Redirect to App.tsx
         } else {
             alert('Invalid username or password');
         }
