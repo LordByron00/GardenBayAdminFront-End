@@ -318,14 +318,27 @@ body {
   color: #2c454c;
 }
 
+.form-group textarea,
+.form-group select,
 .form-group input[type="text"],
 .form-group input[type="number"],
 .form-group input[type="date"] {
+
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-family: 'Urbanist', Arial, sans-serif;
   font-size: 1rem;
+}
+
+.input-error {
+  border: 1px solid #ff4d4f !important;
+}
+
+.error-message {
+  color: #ff4d4f;
+  font-size: 0.8rem;
+  margin-top: 4px;
 }
 
 .image-upload-container {

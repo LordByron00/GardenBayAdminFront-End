@@ -19,10 +19,18 @@ interface MenuItem {
   updated_at: string;
 }
 
+// Interface for form validation errors
+interface FormErrors {
+  name?: string;
+  category?: string;
+  description?: string;
+  price?: string;
+  image?: string;
+}
 
 function Product() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
- 
+
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showArchived, setShowArchived] = useState<boolean>(false);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
@@ -41,6 +49,9 @@ function Product() {
   const [newProductManagementImage, setNewProductManagementImage] = useState<string>('');
   const [newProductManagementImageFile, setNewProductManagementImageFile] = useState<File>();
 
+  // Form validation state
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+
   useEffect(() => {
     const abortController = new AbortController();
 
@@ -49,8 +60,8 @@ function Product() {
 
     return () => {
       abortController.abort();
-    }; 
-    
+    };
+
   }, []);
 
   const getMenu = async () => {
@@ -74,16 +85,16 @@ function Product() {
         'X-Requested-With': 'XMLHttpRequest',
         'Accept': 'application/json',
       },
-    }); 
+    });
 
     if (!csrfResponse.ok) throw new Error('CSRF fetch failed');
 
     const rawXsrfToken = Cookies.get('XSRF-TOKEN'); // Read from cookie jar
     if (!rawXsrfToken) {
-       console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
-       throw new Error('CSRF Token not found in cookies.');
+      console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
+      throw new Error('CSRF Token not found in cookies.');
     }
-    const xsrfToken = decodeURIComponent(rawXsrfToken); 
+    const xsrfToken = decodeURIComponent(rawXsrfToken);
     console.log('XSRF Token:', xsrfToken);
   };
 
@@ -112,12 +123,45 @@ function Product() {
   }, []);
 
   const filteredMenu = menu.filter(menu =>
-    showArchived ? (menu.name.toLowerCase().includes(searchTerm.toLowerCase())) 
-    :  (menu.name.toLowerCase().includes(searchTerm.toLowerCase()) && !menu.archived)
+    showArchived ? (menu.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      : (menu.name.toLowerCase().includes(searchTerm.toLowerCase()) && !menu.archived)
   );
+
+  // Validate form fields
+  const validateProductForm = (): boolean => {
+    const errors: FormErrors = {};
+
+    // Name validation
+    if (!newProductManagementName.trim()) {
+      errors.name = "Product name is required";
+    }
+
+    // Category validation
+    if (!newProductManagementCategory) {
+      errors.category = "Category is required";
+    }
+
+    // Price validation
+    if (newProductManagementPrice <= 0) {
+      errors.price = "Price must be greater than zero";
+    }
+
+    // Optional: Description validation (if you want to enforce a max length)
+    if (newProductManagementDescription.length > 1000) {
+      errors.description = "Description must be less than 1000 characters";
+    }
+
+    if (!newProductManagementDescription) {
+      errors.description = "Description is required";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0; // Return true if no errors
+  };
 
   const openAddProductModal = () => {
     setIsAddProductModalOpen(true);
+    setFormErrors({}); // Clear previous errors
   };
 
   const closeAddProductModal = () => {
@@ -127,10 +171,11 @@ function Product() {
     setNewProductManagementPrice(0);
     setNewProductManagementDescription('');
     setNewProductManagementCategory('');
+    setFormErrors({});
     // setNewProductManagementImageFile('');
   };
 
-  
+
   const openEditMenuModal = (menu: MenuItem) => {
     setCurrentEditMenu(menu)
     setNewProductManagementName(menu.name);
@@ -138,6 +183,7 @@ function Product() {
     setNewProductManagementCategory(menu.category);
     setNewProductManagementDescription(menu.description);
     setNewProductManagementPrice(menu.price);
+    setFormErrors({}); // Clear previous errors
     setIsEditMenuModalOpen(true);
   };
 
@@ -149,14 +195,14 @@ function Product() {
     setNewProductManagementPrice(0);
     setNewProductManagementDescription('');
     setNewProductManagementCategory('');
+    setFormErrors({});
     // setNewProductManagementImageFile('');
   };
 
   const handleAddProduct = async () => {
-    
-    if (newProductManagementName.trim() === '') {
-      alert('Please enter a product name');
-      return;
+    // Validate form before proceeding
+    if (!validateProductForm()) {
+      return; // Stop if validation fails
     }
 
     const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
@@ -187,24 +233,24 @@ function Product() {
     formData.append('description', newProductManagementDescription);
     formData.append('price', `${newProductManagementPrice}`);
     formData.append('archived', '0');
-    
+
     if (newProductManagementImageFile) {
       formData.append('image', newProductManagementImageFile); // The key 'image' must match the backend's request->file('image')
     }
     console.log('newProductManagementImageFile: ' + newProductManagementImageFile);
-    
+
     try {
 
       const rawXsrfToken = Cookies.get('XSRF-TOKEN'); // Read from cookie jar
       if (!rawXsrfToken) {
-         console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
-         throw new Error('CSRF Token not found in cookies.');
+        console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
+        throw new Error('CSRF Token not found in cookies.');
       }
-      const xsrfToken = decodeURIComponent(rawXsrfToken); 
+      const xsrfToken = decodeURIComponent(rawXsrfToken);
 
       const response = await fetch('//localhost:8000/menu', {
         method: 'POST',
-        credentials: 'include',  
+        credentials: 'include',
         headers: {
           'Accept': 'application/json',
           'X-XSRF-TOKEN': xsrfToken,
@@ -231,24 +277,24 @@ function Product() {
     if (!dateString) {
       return 'N/A'; // Or return '', or some other placeholder
     }
-  
+
     try {
       const date = new Date(dateString);
-  
+
       if (isNaN(date.getTime())) {
         console.error("Invalid date string received:", dateString);
-        return 'Invalid Date'; 
+        return 'Invalid Date';
       }
-  
+
       const year = date.getUTCFullYear();
       const month = (date.getUTCMonth() + 1);
       const day = date.getUTCDate();
-  
+
       const monthString = String(month).padStart(2, '0');
       const dayString = String(day).padStart(2, '0');
-  
+
       return `${year}-${monthString}-${dayString}`;
-  
+
     } catch (error) {
       console.error("Error formatting date:", dateString, error);
       return 'Error'; // Indicate that an error occurred during formatting
@@ -258,17 +304,17 @@ function Product() {
   const handleUpdateMenu = async () => {
     if (!currentEditMenu) return;
 
-    if (newProductManagementName.trim() === '') {
-      alert('Please enter a product name');
-      return;
+    // Validate form before proceeding
+    if (!validateProductForm()) {
+      return; // Stop if validation fails
     }
 
     const rawXsrfToken = Cookies.get('XSRF-TOKEN'); // Read from cookie jar
     if (!rawXsrfToken) {
-       console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
-       throw new Error('CSRF Token not found in cookies.');
+      console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
+      throw new Error('CSRF Token not found in cookies.');
     }
-    const xsrfToken = decodeURIComponent(rawXsrfToken); 
+    const xsrfToken = decodeURIComponent(rawXsrfToken);
 
     const formData = new FormData();
     formData.append('name', newProductManagementName);
@@ -278,7 +324,7 @@ function Product() {
     formData.append('archived', '0');
 
     if (newProductManagementImageFile) {
-      formData.append('image', newProductManagementImageFile); 
+      formData.append('image', newProductManagementImageFile);
     }
 
     formData.append('_method', 'PUT');
@@ -286,7 +332,7 @@ function Product() {
     const response = await fetch(`http://localhost:8000/menu/${currentEditMenu.id}`, {
       method: 'POST',
       body: formData,
-      credentials: 'include',  
+      credentials: 'include',
       headers: {
         'Accept': 'application/json',
         'X-XSRF-TOKEN': xsrfToken,
@@ -295,15 +341,15 @@ function Product() {
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorData.message}`);
+      const errorData = await response.json();
+      throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorData.message}`);
     }
 
     const updatedItem = await response.json();
     console.log('Menu item updated:', updatedItem);
 
     getMenu();
-    
+
     closeEditMenuModal();
   };
 
@@ -311,10 +357,10 @@ function Product() {
 
     const rawXsrfToken = Cookies.get('XSRF-TOKEN'); // Read from cookie jar
     if (!rawXsrfToken) {
-       console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
-       throw new Error('CSRF Token not found in cookies.');
+      console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
+      throw new Error('CSRF Token not found in cookies.');
     }
-    const xsrfToken = decodeURIComponent(rawXsrfToken); 
+    const xsrfToken = decodeURIComponent(rawXsrfToken);
 
     const formData = new FormData();
     formData.append('archived', '1');
@@ -323,7 +369,7 @@ function Product() {
     const response = await fetch(`http://localhost:8000/menu/${menu.id}`, {
       method: 'POST',
       body: formData,
-      credentials: 'include',  
+      credentials: 'include',
       headers: {
         'Accept': 'application/json',
         'X-XSRF-TOKEN': xsrfToken,
@@ -332,8 +378,8 @@ function Product() {
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorData.message}`);
+      const errorData = await response.json();
+      throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorData.message}`);
     }
 
     const updatedItem = await response.json();
@@ -346,8 +392,8 @@ function Product() {
   const handleUnarchiveProduct = async (menu: MenuItem) => {
     const rawXsrfToken = Cookies.get('XSRF-TOKEN'); // Read from cookie jar
     if (!rawXsrfToken) {
-       console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
-       throw new Error('CSRF Token not found in cookies.');
+      console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
+      throw new Error('CSRF Token not found in cookies.');
     }
     const xsrfToken = decodeURIComponent(rawXsrfToken);
 
@@ -358,7 +404,7 @@ function Product() {
     const response = await fetch(`http://localhost:8000/menu/${menu.id}`, {
       method: 'POST',
       body: formData,
-      credentials: 'include',  
+      credentials: 'include',
       headers: {
         'Accept': 'application/json',
         'X-XSRF-TOKEN': xsrfToken,
@@ -367,8 +413,8 @@ function Product() {
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorData.message}`);
+      const errorData = await response.json();
+      throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorData.message}`);
     }
 
     const updatedItem = await response.json();
@@ -378,18 +424,57 @@ function Product() {
 
   };
 
+  // Handle form field changes
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewProductManagementName(value);
 
+    // Clear error when user starts typing
+    if (formErrors.name && value.trim()) {
+      setFormErrors(prev => ({ ...prev, name: undefined }));
+    }
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setNewProductManagementCategory(value);
+
+    // Clear error when user selects a category
+    if (formErrors.category && value) {
+      setFormErrors(prev => ({ ...prev, category: undefined }));
+    }
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setNewProductManagementDescription(value);
+
+    // Clear error if description is now valid
+    if (formErrors.description && value.length <= 1000) {
+      setFormErrors(prev => ({ ...prev, description: undefined }));
+    }
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    setNewProductManagementPrice(value);
+
+    // Clear error if price is now valid
+    if (formErrors.price && value > 0) {
+      setFormErrors(prev => ({ ...prev, price: undefined }));
+    }
+  };
 
   return (
     <div className="app-container">
       {/* Fixed Header */}
       <Header setSidebarOpen={setIsSidebarOpen} />
-      
+
 
       {/* Main Content Area with Sidebar */}
       <div className="main-content">
 
-      <Nav isSidebarOpen={isSidebarOpen} />
+        <Nav isSidebarOpen={isSidebarOpen} />
 
         {/* Tab Content */}
         <div className={`tab-content-wrapper ${isSidebarOpen ? '' : 'shifted'}`}>
@@ -466,7 +551,7 @@ function Product() {
                             {!product.archived ? (
                               <button
                                 className="archive-button"
-                                onClick={() => 
+                                onClick={() =>
                                   handleArchiveMenu(product)
                                 }
                               >
@@ -475,7 +560,7 @@ function Product() {
                             ) : (
                               <button
                                 className="unarchive-button"
-                                onClick={() => 
+                                onClick={() =>
                                   handleUnarchiveProduct(product)
                                 }
                               >
@@ -500,10 +585,10 @@ function Product() {
       {isAddProductModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            
+
             <h2 className="modal-title">Add New Product</h2>
             <div className="modal-form">
-              
+
               {/* Add modal for Menu */}
               <div className="form-group">
                 <label htmlFor="productName">Product Name:</label>
@@ -511,87 +596,91 @@ function Product() {
                   type="text"
                   id="productName"
                   value={newProductManagementName}
-                  onChange={(e) =>
-                    setNewProductManagementName(e.target.value)
-                  }
+                  onChange={handleNameChange}
                   placeholder="Enter product name"
+                  className={formErrors.name ? "input-error" : ""}
                 />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="productCategory">Category:</label>
-              <select
-                id="productCategory"
-                value={newProductManagementCategory}
-                onChange={(e) =>
-                  setNewProductManagementCategory(e.target.value)
-                }
-              >
-                <option value="" disabled>
-                  Select category
-                </option>
-                <option value="main">Main Dish</option>
-                <option value="side">Side Dish</option>
-                <option value="dessert">Dessert</option>
-                <option value="drinks">Drinks</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="productDescription">Description:</label>
-              <textarea
-                id="productDescription"
-                rows={3}
-                value={newProductManagementDescription}
-                onChange={(e) =>
-                  setNewProductManagementDescription(e.target.value)
-                }
-                placeholder="Enter product description"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="productPrice">Price:</label>
-              <input
-                type="number"
-                id="productPrice"
-                min="0"
-                step="1"
-                value={newProductManagementPrice}
-                onChange={(e) =>
-                  setNewProductManagementPrice(parseInt(e.target.value))
-                }
-                placeholder="Enter price"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="productImage">Product Image:</label>
-              <div className="image-upload-container">
-                {(newProductManagementImage) ? (
-                  <img
-                    src={newProductManagementImage}
-                    alt="Product preview"
-                    className="image-preview"
-                  />
-                ) : (
-                  <div className="image-placeholder">No image selected</div>
-                )}
-                <input
-                  type="file"
-                  id="productImage"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const imageUrl = URL.createObjectURL(file);
-                      setNewProductManagementImage(imageUrl);
-                      setNewProductManagementImageFile(file);
-                    }
-                  }}
-                />
+                {formErrors.name && <div className="error-message">{formErrors.name}</div>}
               </div>
-            </div>
+
+              <div className="form-group">
+                <label htmlFor="productCategory">Category:</label>
+                <select
+                  id="productCategory"
+                  value={newProductManagementCategory}
+                  onChange={handleCategoryChange}
+                  className={formErrors.category ? "input-error" : ""}
+                >
+                  <option value="" disabled>
+                    Select category
+                  </option>
+                  <option value="main">Main Dish</option>
+                  <option value="side">Side Dish</option>
+                  <option value="dessert">Dessert</option>
+                  <option value="drinks">Drinks</option>
+                </select>
+                {formErrors.category && <div className="error-message">{formErrors.category}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="productDescription">Description:</label>
+                <textarea
+                  id="productDescription"
+                  rows={3}
+                  value={newProductManagementDescription}
+                  onChange={handleDescriptionChange}
+                  placeholder="Enter product description"
+                  className={formErrors.description ? "input-error" : ""}
+                />
+                {formErrors.description && <div className="error-message">{formErrors.description}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="productPrice">Price:</label>
+                <input
+                  type="number"
+                  id="productPrice"
+                  min="0"
+                  step="1"
+                  value={newProductManagementPrice}
+                  onChange={handlePriceChange}
+                  placeholder="Enter price"
+                  className={formErrors.price ? "input-error" : ""}
+                />
+                {formErrors.price && <div className="error-message">{formErrors.price}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="productImage">Product Image:</label>
+                <div className="image-upload-container">
+                  {(newProductManagementImage) ? (
+                    <img
+                      src={newProductManagementImage}
+                      alt="Product preview"
+                      className="image-preview"
+                    />
+                  ) : (
+                    <div className="image-placeholder">No image selected</div>
+                  )}
+                  <input
+                    type="file"
+                    id="productImage"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const imageUrl = URL.createObjectURL(file);
+                        setNewProductManagementImage(imageUrl);
+                        setNewProductManagementImageFile(file);
+                        // Clear image error if it exists
+                        if (formErrors.image) {
+                          setFormErrors(prev => ({ ...prev, image: undefined }));
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              </div>
               <div className="modal-buttons">
                 <button className="modal-button cancel" onClick={closeAddProductModal}>
                   Cancel
@@ -609,98 +698,101 @@ function Product() {
       {isEditMenuModalOpen && currentEditMenu && (
         <div className="modal-overlay">
           <div className="modal-content">
-            
+
             <h2 className="modal-title">Update New Product</h2>
             <div className="modal-form">
-              
+
               <div className="form-group">
                 <label htmlFor="editProductName">Product Name:</label>
                 <input
                   type="text"
                   id="editProductName"
                   value={newProductManagementName}
-                  onChange={(e) =>
-                    setNewProductManagementName(e.target.value)
-                  }
+                  onChange={handleNameChange}
                   placeholder="Enter product name"
+                  className={formErrors.name ? "input-error" : ""}
                 />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="productCategory">Category:</label>
-              <select
-                id="productCategory"
-                value={newProductManagementCategory}
-                onChange={(e) =>
-                  setNewProductManagementCategory(e.target.value)
-                }
-              >
-                <option value="" disabled>
-                  Select category
-                </option>
-                <option value="main">Main Dish</option>
-                <option value="side">Side Dish</option>
-                <option value="dessert">Dessert</option>
-                <option value="drinks">Drinks</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="productDescription">Description:</label>
-              <textarea
-                id="productDescription"
-                rows={3}
-                value={newProductManagementDescription}
-                onChange={(e) =>
-                  setNewProductManagementDescription(e.target.value)
-                }
-                placeholder="Enter product description"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="productPrice">Price:</label>
-              <input
-                type="number"
-                id="productPrice"
-                min="0"
-                step="1"
-                value={newProductManagementPrice}
-                onChange={(e) =>
-                  setNewProductManagementPrice(parseInt(e.target.value))
-                }
-                placeholder="Enter price"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="productImage">Product Image:</label>
-              <div className="image-upload-container">
-                {(newProductManagementImage) ? (
-                  <img
-                    src={newProductManagementImage}
-                    alt="Product preview"
-                    className="image-preview"
-                  />
-                ) : (
-                  <div className="image-placeholder">No image selected</div>
-                )}
-                <input
-                  type="file"
-                  id="productImage"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const imageUrl = URL.createObjectURL(file);
-                        setNewProductManagementImage(imageUrl)
-                        setNewProductManagementImageFile(file)
-                        ;
-                    }
-                  }}
-                />
+                {formErrors.name && <div className="error-message">{formErrors.name}</div>}
               </div>
-            </div>
+
+              <div className="form-group">
+                <label htmlFor="productCategory">Category:</label>
+                <select
+                  id="productCategory"
+                  value={newProductManagementCategory}
+                  onChange={handleCategoryChange}
+                  className={formErrors.category ? "input-error" : ""}
+                >
+                  <option value="" disabled>
+                    Select category
+                  </option>
+                  <option value="main">Main Dish</option>
+                  <option value="side">Side Dish</option>
+                  <option value="dessert">Dessert</option>
+                  <option value="drinks">Drinks</option>
+                </select>
+                {formErrors.category && <div className="error-message">{formErrors.category}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="productDescription">Description:</label>
+                <textarea
+                  id="productDescription"
+                  rows={3}
+                  value={newProductManagementDescription}
+                  onChange={handleDescriptionChange}
+                  placeholder="Enter product description"
+                  className={formErrors.description ? "input-error" : ""}
+                />
+                {formErrors.description && <div className="error-message">{formErrors.description}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="productPrice">Price:</label>
+                <input
+                  type="number"
+                  id="productPrice"
+                  min="0"
+                  step="1"
+                  value={newProductManagementPrice}
+                  onChange={handlePriceChange}
+                  placeholder="Enter price"
+                  className={formErrors.price ? "input-error" : ""}
+                />
+                {formErrors.price && <div className="error-message">{formErrors.price}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="productImage">Product Image:</label>
+                <div className="image-upload-container">
+                  {(newProductManagementImage) ? (
+                    <img
+                      src={newProductManagementImage}
+                      alt="Product preview"
+                      className="image-preview"
+                    />
+                  ) : (
+                    <div className="image-placeholder">No image selected</div>
+                  )}
+                  <input
+                    type="file"
+                    id="productImage"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const imageUrl = URL.createObjectURL(file);
+                        setNewProductManagementImage(imageUrl);
+                        setNewProductManagementImageFile(file);
+                        // Clear image error if it exists
+                        if (formErrors.image) {
+                          setFormErrors(prev => ({ ...prev, image: undefined }));
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              </div>
               <div className="modal-buttons">
                 <button className="modal-button cancel" onClick={closeEditMenuModal}>
                   Cancel
@@ -713,7 +805,8 @@ function Product() {
           </div>
         </div>
       )}
-      
+
+     
     </div>
   );
 }
