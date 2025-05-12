@@ -70,7 +70,7 @@ const SalesTab: React.FC = () => {
                     <div className="inventory-search-container">
                         <span className="inventory-label">Sales Management</span>
                     </div>
-                    <div className="sales-actions">
+                    {/* <div className="sales-actions">
                         <button
                             className={`action-button ${activeView === 'dashboard' ? 'active' : ''}`}
                             onClick={() => setActiveView('dashboard')}
@@ -89,7 +89,7 @@ const SalesTab: React.FC = () => {
                         >
                             New Sale
                         </button>
-                    </div>
+                    </div> */}
                 </div>
 
             {/* Content based on active view */}

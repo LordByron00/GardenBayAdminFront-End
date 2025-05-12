@@ -40,14 +40,14 @@ const Nav = ({ isSidebarOpen }: Props) => {
             >
                 Product 
             </button>
-            <button
+            {/* <button
                 className={`menu-action-button ${
                     location.pathname === '/purchase' ? 'selected' : ''
                 }`}
                 onClick={() => navigate('/purchase')}
             >
                 Purchase
-            </button>
+            </button> */}
             <button
                 className={`menu-action-button ${
                     location.pathname === '/sales' ? 'selected' : ''

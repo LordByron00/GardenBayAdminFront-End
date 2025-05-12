@@ -211,7 +211,7 @@ body {
   padding: 20px;
   flex: 1;
   margin-left: 250px;
-  margin-top: 20px;
+  margin-top: 40px;
   min-height: calc(100vh - 80px);
   transition: margin-left 0.3s ease;
 }
@@ -590,7 +590,7 @@ input[type="date"] {
 }
 
 .sales-dashboard {
-  padding: 20px;
+  padding: 10px;
   display: grid;
   gap: 20px;
 }
