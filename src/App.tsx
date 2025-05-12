@@ -18,6 +18,17 @@ interface Stock {
   archived: boolean;
 }
 
+interface StockFormErrors {
+  name?: string;
+  supplier?: string;
+  quantity?: string;
+  image?: string;
+  dateReceived?: string;
+  dateExpiration?: string;
+}
+
+
+
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState<boolean>(false);
@@ -35,7 +46,6 @@ function App() {
   const [stockExpiryDate, setStockExpiryDate] = useState<string>('');
   const [stockSupplier, setStockSupplier] = useState<string>('');
   // const [stockArchived, setStockArchived] = useState<boolean>(false);
-
  
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showArchived, setShowArchived] = useState<boolean>(false);
@@ -52,6 +62,24 @@ function App() {
     }; 
     
   }, []);
+
+
+  const [StockFormErrors, setStockFormErrors] = useState<StockFormErrors>({});
+  const [addStockErrors, setAddStockErrors] = useState<StockFormErrors>({});
+  const [editStockErrors, setEditStockErrors] = useState<StockFormErrors>({});
+
+  const validateAddStockForm = (): boolean => {
+    const errors: StockFormErrors = {};
+
+    if (!stockName.trim()) errors.name = "Stock name is required";
+    if (!stockSupplier.trim()) errors.supplier = "Supplier is required";
+    if (stockQuantity <= 0) errors.quantity = "Quantity must be greater than 0";
+    if (!stockReceived) errors.dateReceived = "Date received is required";
+    if (!stockExpiryDate) errors.dateExpiration = "Date expiration is required";
+
+    setAddStockErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const getCRSF = async () => {
     const csrfResponse = await fetch('//localhost:8000/sanctum/csrf-cookie', {
@@ -148,8 +176,7 @@ function App() {
   };
   
   const handleAddProduct = async () => {
-    if (stockName.trim() === '' || stockSupplier.trim() === '' || stockQuantity <= 0 || stockExpiryDate === '' || stockReceived === '' || stockImageFile === undefined) {
-      alert('Fill all the fields');
+    if (!validateAddStockForm()) {
       return;
     }
     
@@ -510,102 +537,120 @@ function App() {
       {isAddStockModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            
             <h2 className="modal-title">Add New Stock</h2>
             <div className="modal-form">
-              
-              {/* Add modal for Menu */}
-              {/* name */}
+
+              {/* Stock Name */}
               <div className="form-group">
                 <label htmlFor="productName">Name:</label>
                 <input
                   type="text"
                   id="productName"
                   value={stockName}
-                  onChange={(e) =>
-                    setStockName(e.target.value)
-                  }
-                  placeholder="Enter stock name"
-                />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="productName">Supplier:</label>
-              <input
-                type="text"
-                id="productName"
-                value={stockSupplier}
-                onChange={(e) =>
-                  setStockSupplier(e.target.value)
-                }
-                placeholder="Enter stock supplier"
-              />
-            </div>
-
-            {/* Quantity */}
-            <div className="form-group">
-              <label htmlFor="productPrice">Quantity:</label>
-              <input
-                type="number"
-                id="productQuantity"
-                min="0"
-                step="1"
-                value={stockQuantity}
-                onChange={(e) =>
-                  setStockQuantity(parseInt(e.target.value))
-                }
-                placeholder="Enter price"
-              />
-            </div>
-            
-            {/* Image */}
-            <div className="form-group">
-              <label htmlFor="productImage">Image:</label>
-              <div className="image-upload-container">
-                {(stockImage) ? (
-                  <img
-                    src={stockImage}
-                    alt="Product preview"
-                    className="image-preview"
-                  />
-                ) : (
-                  <div className="image-placeholder">No image selected</div>
-                )}
-                <input
-                  type="file"
-                  id="productImage"
-                  accept="image/*"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const imageUrl = URL.createObjectURL(file);
-                      setStockImage(imageUrl);
-                      setStockImageFile(file);
-                    }
+                    setStockName(e.target.value);
+                    if (addStockErrors.name) setAddStockErrors(prev => ({ ...prev, name: undefined }));
                   }}
+                  placeholder="Enter stock name"
+                  className={addStockErrors.name ? 'input-error' : ''}
                 />
+                {addStockErrors.name && <div className="error-message">{addStockErrors.name}</div>}
               </div>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="dateReceived">Date Received:</label>
-              <input
+
+              {/* Supplier */}
+              <div className="form-group">
+                <label htmlFor="productSupplier">Supplier:</label>
+                <input
+                  type="text"
+                  id="productSupplier"
+                  value={stockSupplier}
+                  onChange={(e) => {
+                    setStockSupplier(e.target.value);
+                    if (addStockErrors.supplier) setAddStockErrors(prev => ({ ...prev, supplier: undefined }));
+                  }}
+                  placeholder="Enter stock supplier"
+                  className={addStockErrors.supplier ? 'input-error' : ''}
+                />
+                {addStockErrors.supplier && <div className="error-message">{addStockErrors.supplier}</div>}
+              </div>
+
+              {/* Quantity */}
+              <div className="form-group">
+                <label htmlFor="productQuantity">Quantity:</label>
+                <input
+                  type="number"
+                  id="productQuantity"
+                  min="0"
+                  step="1"
+                  value={stockQuantity}
+                  onChange={(e) => {
+                    setStockQuantity(parseInt(e.target.value));
+                    if (addStockErrors.quantity) setAddStockErrors(prev => ({ ...prev, quantity: undefined }));
+                  }}
+                  placeholder="Enter quantity"
+                  className={addStockErrors.quantity ? 'input-error' : ''}
+                />
+                {addStockErrors.quantity && <div className="error-message">{addStockErrors.quantity}</div>}
+              </div>
+
+              {/* Image */}
+              <div className="form-group">
+                <label htmlFor="productImage">Image:</label>
+                <div className="image-upload-container">
+                  {stockImage ? (
+                    <img src={stockImage} alt="Product preview" className="image-preview" />
+                  ) : (
+                    <div className="image-placeholder">No image selected</div>
+                  )}
+                  <input
+                    type="file"
+                    id="productImage"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const imageUrl = URL.createObjectURL(file);
+                        setStockImage(imageUrl);
+                        setStockImageFile(file);
+                        if (addStockErrors.image) setAddStockErrors(prev => ({ ...prev, image: undefined }));
+                      }
+                    }}
+                  />
+                </div>
+                {addStockErrors.image && <div className="error-message">{addStockErrors.image}</div>}
+              </div>
+
+              {/* Date Received */}
+              <div className="form-group">
+                <label htmlFor="dateReceived">Date Received:</label>
+                <input
                   type="date"
                   id="dateReceived"
                   value={stockReceived}
-                  onChange={(e) => setStockReceived(e.target.value)}
-              />
-            </div>
+                  onChange={(e) => {
+                    setStockReceived(e.target.value);
+                    if (addStockErrors.dateReceived) setAddStockErrors(prev => ({ ...prev, dateReceived: undefined }));
+                  }}
+                  className={addStockErrors.dateReceived ? 'input-error' : ''}
+                />
+                {addStockErrors.dateReceived && <div className="error-message">{addStockErrors.dateReceived}</div>}
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="dateExpiration">Date Expiration:</label>
-              <input
+              {/* Date Expiration */}
+              <div className="form-group">
+                <label htmlFor="dateExpiration">Date Expiration:</label>
+                <input
                   type="date"
                   id="dateExpiration"
                   value={stockExpiryDate}
-                  onChange={(e) => setStockExpiryDate(e.target.value)}
-              />
-            </div>
+                  onChange={(e) => {
+                    setStockExpiryDate(e.target.value);
+                    if (addStockErrors.dateExpiration) setAddStockErrors(prev => ({ ...prev, dateExpiration: undefined }));
+                  }}
+                  className={addStockErrors.dateExpiration ? 'input-error' : ''}
+                />
+                {addStockErrors.dateExpiration && <div className="error-message">{addStockErrors.dateExpiration}</div>}
+              </div>
 
               <div className="modal-buttons">
                 <button className="modal-button cancel" onClick={closeAddStockModal}>
@@ -619,6 +664,7 @@ function App() {
           </div>
         </div>
       )}
+
 
       {/* Edit menu modal */}
       {isEditStockModalOpen && currentStock && (
