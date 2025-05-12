@@ -9,6 +9,7 @@ import './index.css';
 import Login from './Login';
 import App from './App';
 import Product from './product';
+import SalesTab from './components/SalesTab';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
@@ -19,8 +20,8 @@ root.render(
         <Route path="/" element={<Login />} />
         <Route path="/inventory" element={<App />} />
         <Route path="/product" element={<Product />} />
-        <Route path="/purchase" element={<App />} />
-        <Route path="/sales" element={<App />} />
+        <Route path="/purchase" element={<SalesTab />} />
+        <Route path="/sales" element={<SalesTab />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

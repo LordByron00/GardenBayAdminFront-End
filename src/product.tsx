@@ -47,7 +47,7 @@ function Product() {
   const [newProductManagementPrice, setNewProductManagementPrice] = useState(0);
   const [newProductManagementName, setNewProductManagementName] = useState<string>('');
   const [newProductManagementImage, setNewProductManagementImage] = useState<string>('');
-  const [newProductManagementImageFile, setNewProductManagementImageFile] = useState<File>();
+  const [newProductManagementImageFile, setNewProductManagementImageFile] = useState<File | null>();
 
   // Form validation state
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -172,7 +172,7 @@ function Product() {
     setNewProductManagementDescription('');
     setNewProductManagementCategory('');
     setFormErrors({});
-    // setNewProductManagementImageFile('');
+    setNewProductManagementImageFile(null);
   };
 
 
@@ -196,7 +196,7 @@ function Product() {
     setNewProductManagementDescription('');
     setNewProductManagementCategory('');
     setFormErrors({});
-    // setNewProductManagementImageFile('');
+    setNewProductManagementImageFile(null);
   };
 
   const handleAddProduct = async () => {
@@ -228,7 +228,7 @@ function Product() {
 
     const formData = new FormData();
     formData.append('name', newProductManagementName);
-    formData.append('image', newProductManagementImage);
+    // formData.append('image', newProductManagementImage);
     formData.append('category', newProductManagementCategory);
     formData.append('description', newProductManagementDescription);
     formData.append('price', `${newProductManagementPrice}`);
@@ -353,17 +353,19 @@ function Product() {
     closeEditMenuModal();
   };
 
-  const handleArchiveMenu = async (menu: MenuItem) => {
+  const toggleArchiveMenu = async (menu: MenuItem) => {
 
     const rawXsrfToken = Cookies.get('XSRF-TOKEN'); // Read from cookie jar
     if (!rawXsrfToken) {
       console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
       throw new Error('CSRF Token not found in cookies.');
     }
-    const xsrfToken = decodeURIComponent(rawXsrfToken);
+    const xsrfToken = decodeURIComponent(rawXsrfToken); 
+
+    const archive = menu.archived ? '0' : '1';
 
     const formData = new FormData();
-    formData.append('archived', '1');
+    formData.append('archived', archive);
     formData.append('_method', 'PUT');
 
     const response = await fetch(`http://localhost:8000/menu/${menu.id}`, {
@@ -386,42 +388,6 @@ function Product() {
     console.log('Menu item updated:', updatedItem);
 
     getMenu();
-  };
-
-
-  const handleUnarchiveProduct = async (menu: MenuItem) => {
-    const rawXsrfToken = Cookies.get('XSRF-TOKEN'); // Read from cookie jar
-    if (!rawXsrfToken) {
-      console.error('XSRF Token cookie not found. Ensure it is being set correctly by the backend and is not HttpOnly if you need to read it.');
-      throw new Error('CSRF Token not found in cookies.');
-    }
-    const xsrfToken = decodeURIComponent(rawXsrfToken);
-
-    const formData = new FormData();
-    formData.append('archived', '0');
-    formData.append('_method', 'PUT');
-
-    const response = await fetch(`http://localhost:8000/menu/${menu.id}`, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json',
-        'X-XSRF-TOKEN': xsrfToken,
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorData.message}`);
-    }
-
-    const updatedItem = await response.json();
-    console.log('Menu item updated:', updatedItem);
-
-    getMenu();
-
   };
 
   // Handle form field changes
@@ -474,7 +440,8 @@ function Product() {
       {/* Main Content Area with Sidebar */}
       <div className="main-content">
 
-        <Nav isSidebarOpen={isSidebarOpen} />
+      {/* Fixed Sidebar */}
+      <Nav isSidebarOpen={isSidebarOpen} />
 
         {/* Tab Content */}
         <div className={`tab-content-wrapper ${isSidebarOpen ? '' : 'shifted'}`}>
@@ -551,8 +518,8 @@ function Product() {
                             {!product.archived ? (
                               <button
                                 className="archive-button"
-                                onClick={() =>
-                                  handleArchiveMenu(product)
+                                onClick={() => 
+                                  toggleArchiveMenu(product)
                                 }
                               >
                                 Archive
@@ -560,8 +527,8 @@ function Product() {
                             ) : (
                               <button
                                 className="unarchive-button"
-                                onClick={() =>
-                                  handleUnarchiveProduct(product)
+                                onClick={() => 
+                                  toggleArchiveMenu(product)
                                 }
                               >
                                 Unarchive
@@ -805,8 +772,6 @@ function Product() {
           </div>
         </div>
       )}
-
-     
     </div>
   );
 }

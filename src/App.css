@@ -418,7 +418,7 @@ body {
 .products-table th,
 .products-table td {
   padding: 15px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #eee;
 }
 
@@ -431,7 +431,7 @@ body {
 }
 
 .product-row:hover {
-  background-color: #f9f9f9;
+  background-color: #b6b6b6;
 }
 
 .product-row.archived {
@@ -470,10 +470,15 @@ body {
   color: #444;
 }
 
-.product-actions-cell {
+.product-actions-cell button {
   white-space: nowrap;
-  display: flex;
-  gap: 10px;
+  margin-left: 15px;
+  /* display: flex; */
+  /* gap: 10px; */
+}
+
+.product-actions-cell:hover {
+  background-color: #b6b6b6;
 }
 
 .edit-button,
@@ -647,17 +652,17 @@ input[type="date"] {
 
 .metrics-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
 
 .metric-card {
   background-color: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #dbdce0;
   border-radius: 8px;
-  padding: 20px;
+  padding: 5px;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.15);
 }
 
 .metric-card h4 {
@@ -667,7 +672,7 @@ input[type="date"] {
 }
 
 .metric-value {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: #333;
 }
@@ -675,6 +680,17 @@ input[type="date"] {
 .metric-change {
   font-size: 0.9rem;
   color: #10b981;
+}
+
+.metric-percentage {
+  font-size: 0.9rem;
+  color: #10b981;
+}
+
+.side-by-side-p {
+  display: inline-block;
+  margin: 5px;
+  /* other styles like margin-right */
 }
 
 .metric-change.positive {
@@ -685,25 +701,41 @@ input[type="date"] {
   color: #ef4444;
 }
 
+.metric-percentage.positive {
+  color: #10b981;
+}
+
+.metric-percentage.negative {
+  color: #ef4444;
+}
+
+
+.side-by-side-p {
+  display: inline-block;
+  /* other styles like margin-right */
+}
+
 .chart-container {
   background-color: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+} 
 
 .chart-container h4 {
   font-size: 1rem;
   color: #666;
   margin-bottom: 15px;
-}
+} 
+
 
 .chart-row {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two equal columns */
-  gap: 20px; /* Space between the charts */
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
+
 
 .warehouse-capacity {
   display: flex;
