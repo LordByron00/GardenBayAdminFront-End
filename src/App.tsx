@@ -73,8 +73,7 @@ function App() {
 
     if (!stockName.trim()) errors.name = "Stock name is required";
     if (!stockSupplier.trim()) errors.supplier = "Supplier is required";
-    if (stockQuantity <= 0) errors.quantity = "Quantity must be greater than 0";
-    if (!stockReceived) errors.dateReceived = "Date received is required";
+    if (stockQuantity <= 0 || stockQuantity === undefined || stockQuantity === null || typeof stockQuantity !== 'number' || isNaN(stockQuantity)) errors.quantity = "Quantity must be greater than 0";
     if (!stockExpiryDate) errors.dateExpiration = "Date expiration is required";
 
     setAddStockErrors(errors);
@@ -144,6 +143,18 @@ function App() {
     setIsAddStockModalOpen(true);
   };
 
+const clearError = () => {
+
+  const errors: StockFormErrors = {};
+  errors.name = "";
+  errors.supplier = "";
+  errors.quantity = "";
+  errors.dateReceived = "";
+  errors.dateExpiration = "";
+
+  setAddStockErrors(errors);
+}
+
   const closeAddStockModal = () => {
     setIsAddStockModalOpen(false);
     setStockName('');
@@ -152,6 +163,7 @@ function App() {
     setStockReceived('');
     setStockExpiryDate('');
     setStockSupplier('');
+    clearError();
   };
 
   const openEditStockModal = (Stock: Stock) => {
@@ -173,6 +185,7 @@ function App() {
     setStockQuantity(0);
     setStockExpiryDate('');
     setStockSupplier('');
+    clearError();
   };
   
   const handleAddProduct = async () => {
@@ -254,6 +267,10 @@ function App() {
   }
 
   const handleUpdateStock = async () => {
+    if (!validateAddStockForm()) {
+      return;
+    }
+
     if (!currentStock) return;
 
     if (stockName.trim() === '' || stockSupplier.trim() === '' || stockQuantity <= 0 || stockExpiryDate === '') {
@@ -680,11 +697,15 @@ function App() {
                   type="text"
                   id="editProductName"
                   value={stockName}
-                  onChange={(e) =>
-                    setStockName(e.target.value)
+                  onChange={(e) => {
+                      setStockName(e.target.value)
+                    if (addStockErrors.name) setAddStockErrors(prev => ({ ...prev, name: undefined }));
+                    }
                   }
                   placeholder="Enter  stock name"
+                  className={addStockErrors.name ? 'input-error' : ''}
                 />
+                {addStockErrors.name && <div className="error-message">{addStockErrors.name}</div>}
             </div>
 
             <div className="form-group">
@@ -693,26 +714,34 @@ function App() {
                 type="text"
                 id="productName"
                 value={stockSupplier}
-                onChange={(e) =>
+                onChange={(e) =>{
                   setStockSupplier(e.target.value)
+                  if (addStockErrors.supplier) setAddStockErrors(prev => ({ ...prev, supplier: undefined }));
+                }
                 }
                 placeholder="Enter stock supplier"
+                className={addStockErrors.supplier ? 'input-error' : ''}
               />
+                {addStockErrors.supplier && <div className="error-message">{addStockErrors.supplier}</div>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="productPrice">Quantity:</label>
+              <label htmlFor="productQuantity">Quantity:</label>
               <input
                 type="number"
-                id="productPrice"
+                id="productQuantity"
                 min="0"
                 step="1"
                 value={stockQuantity}
-                onChange={(e) =>
+                onChange={(e) =>{
                   setStockQuantity(parseInt(e.target.value))
+                  if (addStockErrors.quantity) setAddStockErrors(prev => ({ ...prev, quantity: undefined }));
+                  }
                 }
-                placeholder="Enter price"
+                placeholder="Enter quantity"
+                className={addStockErrors.quantity ? 'input-error' : ''}
               />
+                {addStockErrors.quantity && <div className="error-message">{addStockErrors.quantity}</div>}
             </div>
 
             <div className="form-group">
@@ -749,8 +778,13 @@ function App() {
                   type="date"
                   id="dateExpiration"
                   value={stockExpiryDate}
-                  onChange={(e) => setStockExpiryDate(e.target.value)}
+                  onChange={(e) => {
+                    setStockExpiryDate(e.target.value)
+                    if (addStockErrors.dateExpiration) setAddStockErrors(prev => ({ ...prev, dateExpiration: undefined }));
+                  }}
+                  className={addStockErrors.dateExpiration ? 'input-error' : ''}
               />
+                {addStockErrors.dateExpiration && <div className="error-message">{addStockErrors.dateExpiration}</div>}
             </div>
 
             </div>

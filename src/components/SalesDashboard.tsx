@@ -185,26 +185,45 @@ const SalesDashboard: React.FC = () => {
                 <div className="metric-card">
                     <h4>Net Income</h4>
                     <p className="metric-value">{formatCurrency(metrics?.current.net_income)}</p>
-                    <p className={`metric-change side-by-side-p ${(metrics?.change.absolute.net || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.absolute.net}</p>
-                    <p className={`metric-percentage side-by-side-p ${(metrics?.change.percentage.net || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.percentage.net}%</p>
+                    {timeFrame !== 'all' && (
+                      <>
+                      <p className={`metric-change side-by-side-p ${(metrics?.change.absolute.net || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.absolute.net}</p>
+                      <p className={`metric-percentage side-by-side-p ${(metrics?.change.percentage.net || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.percentage.net}%</p>
+                      </>
+                    )}
                 </div>
                 <div className="metric-card">
                     <h4>Average Sales</h4>
                     <p className="metric-value">{formatCurrency(metrics?.current.average_sale)}</p>
-                    <p className={`metric-change side-by-side-p ${(metrics?.change.absolute.avg || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.absolute.avg}</p>
-                    <p className={`metric-percentage side-by-side-p ${(metrics?.change.percentage.avg || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.percentage.avg}%</p>
+                    {timeFrame !== 'all' && (
+                      <>
+                        <p className={`metric-change side-by-side-p ${(metrics?.change.absolute.avg || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.absolute.avg}</p>
+                        <p className={`metric-percentage side-by-side-p ${(metrics?.change.percentage.avg || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.percentage.avg}%</p>
+                      </>
+                    )}
+
                 </div>
                 <div className="metric-card">
                     <h4>Total Order</h4>
                     <p className="metric-value">{formatCurrency(metrics?.current.total_items)}</p>
-                    <p className={`metric-change side-by-side-p ${(metrics?.change.absolute.items || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.absolute.items}</p>
-                    <p className={`metric-percentage side-by-side-p ${(metrics?.change.percentage.items || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.percentage.items}%</p>
+                   
+                    {timeFrame !== 'all' && (
+                      <>
+                        <p className={`metric-change side-by-side-p ${(metrics?.change.absolute.items || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.absolute.items}</p>
+                        <p className={`metric-percentage side-by-side-p ${(metrics?.change.percentage.items || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.percentage.items}%</p>
+                      </>
+                    )}
+
                 </div>
                 <div className="metric-card">
                     <h4>Total Sales</h4>
                     <p className="metric-value">{formatCurrency(metrics?.current.overall_sales)}</p>
-                    <p className={`metric-change side-by-side-p ${(metrics?.change.absolute.revenue || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.absolute.revenue}</p>
-                    <p className={`metric-percentage side-by-side-p ${(metrics?.change.percentage.revenue || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.percentage.revenue}%</p>
+                    {timeFrame !== 'all' && (
+                      <>
+                      <p className={`metric-change side-by-side-p ${(metrics?.change.absolute.revenue || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.absolute.revenue}</p>
+                      <p className={`metric-percentage side-by-side-p ${(metrics?.change.percentage.revenue || 0) > 0 ? 'positive' : 'negative'}`}>{metrics?.change.percentage.revenue}%</p>
+                      </>
+                    )}
                 </div>
             </div>
 
