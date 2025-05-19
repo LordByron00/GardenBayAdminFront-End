@@ -45,7 +45,11 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    text-align: center;
 }
 
 .admin-icon {
@@ -92,6 +96,19 @@ input {
     align-items: center;
     margin-bottom: 1.5rem; /* Add more space below the checkbox */
 }
+.ptext {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 1.5rem; 
+}
+
+.ptext .toggle-text {
+    color: rgb(139, 138, 159);
+    font-weight: bold;
+}
+
 
 .login-btn {
     display: block; /* Make the button a block-level element */

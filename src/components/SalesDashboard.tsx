@@ -205,7 +205,7 @@ const SalesDashboard: React.FC = () => {
                 </div>
                 <div className="metric-card">
                     <h4>Total Order</h4>
-                    <p className="metric-value">{formatCurrency(metrics?.current.total_items)}</p>
+                    <p className="metric-value">{metrics?.current.total_items}</p>
                    
                     {timeFrame !== 'all' && (
                       <>
