@@ -159,6 +159,7 @@ const clearError = () => {
     setIsAddStockModalOpen(false);
     setStockName('');
     setStockImage('');
+    setStockImageFile(null);
     setStockQuantity(0);
     setStockReceived('');
     setStockExpiryDate('');

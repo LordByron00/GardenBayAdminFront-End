@@ -1,25 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-// import '../App.css';
+import { useAuth } from '../Login'; // Adjust the import path to where your AuthContext is
 
 type Props = {
     isSidebarOpen: boolean;
-  };
+};
 
 const Nav = ({ isSidebarOpen }: Props) => {
-    // const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
-    const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+    const [windowWidth] = useState<number>(window.innerWidth);
     const navigate = useNavigate();
-    const location = useLocation(); // Get current location
+    const location = useLocation();
+    const { logout } = useAuth(); // Get the logout function from AuthContext
 
     const handleButtonClick = (buttonName: string) => {
-        // if (windowWidth < 768) {
-            // setIsSidebarOpen(false);
-        // }
+        // Your existing button click logic
     };
 
-    const handleLogout = () => {
-        navigate('/');
+    const handleLogout = async () => {
+        try {
+            await logout(); // Call the logout function from AuthContext
+            navigate('/login'); // Redirect to login page after successful logout
+        } catch (error) {
+            console.error('Logout failed:', error);
+            // Optionally show an error message to the user
+        }
     };
 
     return (
@@ -40,14 +44,6 @@ const Nav = ({ isSidebarOpen }: Props) => {
             >
                 Product 
             </button>
-            {/* <button
-                className={`menu-action-button ${
-                    location.pathname === '/purchase' ? 'selected' : ''
-                }`}
-                onClick={() => navigate('/purchase')}
-            >
-                Purchase
-            </button> */}
             <button
                 className={`menu-action-button ${
                     location.pathname === '/sales' ? 'selected' : ''
@@ -56,7 +52,10 @@ const Nav = ({ isSidebarOpen }: Props) => {
             >
                 Sales
             </button>
-            <button className="logout-button" onClick={handleLogout}>
+            <button 
+                className="logout-button" 
+                onClick={handleLogout}
+            >
                 Sign Out
             </button>
         </div>
